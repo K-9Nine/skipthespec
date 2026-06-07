@@ -1,0 +1,22 @@
+{
+  "id": "preview-tsv-with-bom",
+  "capability": "file-preview",
+  "source": "dogfood-friction-2026-06",
+  "priority": "high",
+  "input": {
+    "prompt": "Preview the uploaded file inline.",
+    "fixtures": ["tsv_with_bom.tsv"]
+  },
+  "expectation": "positive",
+  "success_criteria": "First column header rendered correctly (BOM stripped), rows aligned, no download triggered.",
+  "reference_solution": {
+    "description": "Rendered table with correct first-column header 'id', aligned rows, no download event."
+  },
+  "graders": [
+    { "type": "outcome", "check": "rendered_table['headers'][0] == 'id'" },
+    { "type": "outcome", "check": "download_events == 0" },
+    { "type": "static",  "check": "lint_pass and type_pass" }
+  ],
+  "metric": "pass^k",
+  "k": 5
+}

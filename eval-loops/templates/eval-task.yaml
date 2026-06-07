@@ -12,7 +12,9 @@ input:
   fixtures:
     - tsv_with_bom.tsv             # clean-room fixtures copied in per trial
 
-# Should the behavior occur here? Include negative tasks too (balanced sets).
+# Should the behavior occur here? Include negative tasks too (balanced sets) — the harness
+# reports the positive/negative split and warns on one-sided suites. Graders always encode the
+# CORRECT outcome: for a negative task, assert the behavior is ABSENT (e.g. search_triggered == False).
 expectation: positive             # positive = behavior should occur | negative = should NOT
 
 # Unambiguous success criteria.
@@ -26,17 +28,21 @@ reference_solution:
   description: "Rendered table with correct first-column header 'id', 5 aligned rows, no download event."
 
 # Grade the OUTCOME, not the path. Prefer deterministic; add LLM judge only where needed.
+# `check` runs through a restricted evaluator (run_evals.py: safe_eval) — comparisons,
+# boolean/arithmetic ops, literals, indexing, and a small allow-list of functions
+# (len/min/max/sum/all/any/round/...). Attribute access and arbitrary calls are refused,
+# so a check can never execute code. Subscript dict keys; do not use attributes.
 graders:
   - type: outcome                  # deterministic outcome check
-    check: "rendered_table['headers'][0] == 'id'"   # subscript dict keys, not attributes
+    check: "rendered_table['headers'][0] == 'id'"
   - type: outcome
     check: "download_events == 0"
   - type: static                   # quality/safety floor
     check: "lint_pass and type_pass"
-  - type: llm_judge                # only for the nuanced bit
+  - type: llm_judge                # only for the nuanced bit (one dimension per judge)
     dimension: readability
     rubric: "Is the table easy to scan? Columns aligned? Return Unknown if you cannot tell."
-    calibrated_against_human: true
+    calibrated_against_human: true # an "unknown" verdict is counted separately, never as a pass
 
 # Metric to report this task under.
 metric: pass^k                     # pass^k = consistency matters | pass@k = one success suffices

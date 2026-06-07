@@ -22,7 +22,7 @@
 
 Anthropic doesn’t write a dense PRD and then build to it. Their Claude Code team **builds a working prototype first, ships it internally the same day, watches real usage, and lets the data choose the roadmap** — while Claude now authors **80%+ of merged production code** behind an automated reviewer.
 
-**Skip the Spec** turns that playbook into five composable Claude Code skills you can drop into any repo. You give the high‑level goal and the boundaries; Claude plans, writes, tests, evaluates, and ships behind a flag — and a built‑in **Autonomous Developer Constitution** keeps you in structural control the whole way.
+**Skip the Spec** turns that playbook into five composable Claude Code skills you can drop into any repo. You give the high‑level goal and the boundaries; Claude plans, writes, tests, evaluates, and ships behind a flag — and a built‑in **Autonomous Developer Constitution** keeps you in the loop at every decision boundary: a priority hierarchy Claude carries through every choice, deterministic graders that can't be talked into passing, and human sign‑off on the calls that matter.
 
 > No PRDs. Prototypes are the spec. Usage data is the roadmap. Evals are the safety net. You hold the kill switch.
 
@@ -41,11 +41,12 @@ Anthropic doesn’t write a dense PRD and then build to it. Their Claude Code te
 Run inside any project repo where you want the skill set (installs at **project scope**, so it stays isolated):
 
 ```bash
-git clone --depth 1 https://github.com/K-9Nine/skipthespec.git /tmp/sts \
+STS="$(mktemp -d)" && git clone --depth 1 https://github.com/K-9Nine/skipthespec.git "$STS" \
   && mkdir -p .claude/skills .claude/commands \
-  && cp -r /tmp/sts/{autonomous-dev,prototype-first,dogfood-loop,autonomous-build,eval-loops} .claude/skills/ \
-  && cp /tmp/sts/.claude/commands/*.md .claude/commands/ \
-  && cp /tmp/sts/install/skipthespec-mode.sh .claude/ && chmod +x .claude/skipthespec-mode.sh
+  && cp -r "$STS"/{autonomous-dev,prototype-first,dogfood-loop,autonomous-build,eval-loops} .claude/skills/ \
+  && cp "$STS"/.claude/commands/*.md .claude/commands/ \
+  && cp "$STS"/install/skipthespec-mode.sh .claude/ && chmod +x .claude/skipthespec-mode.sh \
+  && rm -rf "$STS"
 ```
 
 Then in Claude Code:
@@ -98,18 +99,21 @@ High AI autonomy only works with hard boundaries. Every skill inherits one const
 
 Claude Code has no native “use only this set” switch, so isolation comes from two layers:
 
-1. **Project scope** — installed in `.claude/skills/`, so PRD‑led repos never see these skills.
-2. **Mode flag** — `/skipthespec-mode on` writes a `CLAUDE.md` directive telling Claude to use *only* these five skills and ignore PRD‑led ones; `/skipthespec-mode off` restores normal behavior. Idempotent, and it preserves the rest of your `CLAUDE.md`.
+1. **Project scope** — installed in `.claude/skills/`, so PRD‑led repos never see these skills. This is the real isolation.
+2. **Mode flag** — `/skipthespec-mode on` writes a `CLAUDE.md` directive telling Claude to use *only* these five skills and ignore PRD‑led ones; `/skipthespec-mode off` removes it. It's a **soft, session‑start nudge**, not a hard runtime lock — Claude reads `CLAUDE.md` when a session begins, so start a fresh session for it to take hold. Idempotent, and it preserves the rest of your `CLAUDE.md`.
 
 ## 🧪 Try the eval harness now
 
+Zero dependencies — two example tasks (one positive, one negative) ship ready to run:
+
 ```bash
-cd eval-loops
-mkdir -p demo_tasks && cp templates/eval-task.yaml demo_tasks/   # one example task
-python3 scripts/run_evals.py --tasks demo_tasks --k 5 --out ./eval_runs
+python3 eval-loops/scripts/run_evals.py --tasks eval-loops/demo_tasks --k 5 --out ./eval_runs
+python3 -m unittest discover -s eval-loops/tests      # the harness's own self-test
 ```
 
-The harness runs **k isolated, clean‑room trials per task**, applies deterministic + LLM‑judge graders, reports `pass@k` / `pass^k`, and saves transcripts — because you don’t trust a score you haven’t read. Task format: [`eval-loops/templates/eval-task.yaml`](eval-loops/templates/eval-task.yaml).
+The harness runs **k isolated, clean‑room trials per task**, applies deterministic + LLM‑judge graders, reports `pass@k` / `pass^k`, and saves transcripts — because you don’t trust a score you haven’t read. JSON tasks need nothing installed; for YAML task files, `pip install -r eval-loops/requirements.txt`. The provenance‑stamped `report.json` also carries class balance, errored trials, and judge abstentions. Task format: [`eval-loops/templates/eval-task.yaml`](eval-loops/templates/eval-task.yaml).
+
+> ⚠ Grader `check` strings run through a restricted evaluator (no attribute access, no arbitrary calls), so a task file can't execute code — but a *trial* runs your agent with full privileges. **Clean‑room is not a sandbox:** run task packs you didn't author inside a container with no credentials and egress disabled.
 
 ## 📚 Built from primary sources
 
@@ -131,6 +135,10 @@ skipthespec/
 ├── install/             # mode toggle script
 └── KICKOFF-PROMPT.md     # paste-and-go first cycle
 ```
+
+## 🧭 When (not) to use it
+
+Reach for it on **greenfield, low-stakes, reversible** work — internal tools, new features behind a flag, prototypes. Stay **spec-first** for production-critical or regulated paths (billing, payments, auth, PII, compliance) and hard-to-reverse changes (schema migrations, public APIs, data deletion). The constitution ranks Velocity above Quality *on purpose*; that's the right call for discovery and the wrong call when a mistake is expensive. `autonomous-dev` spells out the boundary.
 
 ## 🤝 Contributing
 
