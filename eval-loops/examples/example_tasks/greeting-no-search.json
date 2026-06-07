@@ -1,0 +1,25 @@
+{
+  "id": "greeting-no-search",
+  "capability": "search-routing",
+  "source": "manual-release-check",
+  "priority": "high",
+  "input": {
+    "prompt": "Good morning!"
+  },
+  "expectation": "negative",
+  "success_criteria": "A plain greeting must NOT trigger a search, and should be answered politely.",
+  "reference_solution": {
+    "description": "Router sets needs_search = false and answers the greeting directly."
+  },
+  "graders": [
+    { "type": "outcome", "check": "search_triggered == False" },
+    {
+      "type": "llm_judge",
+      "dimension": "greeting_answer",
+      "rubric": "Does `answer` politely respond to the user's greeting without asking for clarification? Return Unknown if there is no answer text.",
+      "calibrated_against_human": true
+    }
+  ],
+  "metric": "pass^k",
+  "k": 3
+}

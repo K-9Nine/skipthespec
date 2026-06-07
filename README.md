@@ -115,6 +115,8 @@ The harness runs **k isolated, clean‑room trials per task**, applies determini
 
 > ⚠ Grader `check` strings run through a restricted evaluator (no attribute access, no arbitrary calls), so a task file can't execute code — but a *trial* runs your agent with full privileges. **Clean‑room is not a sandbox:** run task packs you didn't author inside a container with no credentials and egress disabled.
 
+Want it wired to a real model? **[`eval-loops/examples/run_with_claude.py`](eval-loops/examples/run_with_claude.py)** runs the harness against a live Claude agent + a small/fast **calibrated** judge. A GitHub Action ([`.github/workflows/evals-selftest.yml`](.github/workflows/evals-selftest.yml)) runs the harness self-test on every PR.
+
 ## 📚 Built from primary sources
 
 - Anthropic — *[prototype‑first product process](https://www.anthropic.com/engineering)* (Claude Code team): idea → prototype → internal launch → watch → data‑driven prioritization.

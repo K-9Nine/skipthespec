@@ -37,3 +37,11 @@ core methodology is unchanged; this makes the executable parts solid and the cla
   isolation); the constitution gained a "how this is enforced (and how it is not)" section.
 - Install one-liner uses `mktemp -d` instead of a predictable, world-readable `/tmp/sts` path.
 - `pass@k`/`pass^k` documented as the **empirical** per-task figure, not the unbiased estimator.
+
+### ci + worked example
+- **GitHub Action** (`.github/workflows/evals-selftest.yml`): runs the harness self-test and
+  smoke-tests the demo tasks on every PR/push that touches `eval-loops/**`. Stdlib-only, no secrets.
+- **Live example** (`eval-loops/examples/run_with_claude.py`): wires `run_agent()` to a real Claude
+  agent (`claude-opus-4-8`) and `llm_judge()` to a small/fast calibrated judge (`claude-haiku-4-5`)
+  via strict tool use, with a `calibrate_judge()` step and two routing example tasks — turning the
+  skeleton into a turnkey harness. Optional `anthropic` dep in `examples/requirements.txt`.

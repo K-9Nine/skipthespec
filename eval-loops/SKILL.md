@@ -123,3 +123,5 @@ Report: tasks count, pass@k / pass^k, what's in the regression suite, any unfair
 - `templates/eval-task.yaml` — the per-task definition (inputs, success criteria, reference solution, graders).
 - `demo_tasks/` — two ready-to-run JSON tasks (one positive, one negative) for a zero-dependency first run.
 - `requirements.txt` — optional PyYAML, only if you want to author task files in YAML (JSON needs nothing).
+- `examples/run_with_claude.py` — turnkey example: real Claude agent + small/fast **calibrated** judge (strict tool use), plus `calibrate_judge()`. The skeleton wired to a live model.
+- `.github/workflows/evals-selftest.yml` — CI that runs the self-test + demo smoke-test on every PR touching `eval-loops/**`.

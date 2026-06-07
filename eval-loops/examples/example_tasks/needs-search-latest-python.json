@@ -1,0 +1,19 @@
+{
+  "id": "needs-search-latest-python",
+  "capability": "search-routing",
+  "source": "manual-release-check",
+  "priority": "high",
+  "input": {
+    "prompt": "What's the very latest stable version of Python and when was it released?"
+  },
+  "expectation": "positive",
+  "success_criteria": "A version/date question about current facts must route to a web search.",
+  "reference_solution": {
+    "description": "Router sets needs_search = true (the answer depends on up-to-date facts)."
+  },
+  "graders": [
+    { "type": "outcome", "check": "search_triggered == True" }
+  ],
+  "metric": "pass^k",
+  "k": 3
+}

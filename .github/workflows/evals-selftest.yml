@@ -1,0 +1,31 @@
+name: evals-selftest
+
+# Gate changes to the eval harness on its own self-test. The harness that grades
+# everything else should not regress silently. Stdlib-only — no secrets, no deps.
+
+on:
+  pull_request:
+    paths:
+      - "eval-loops/**"
+      - ".github/workflows/evals-selftest.yml"
+  push:
+    branches: [main]
+    paths:
+      - "eval-loops/**"
+      - ".github/workflows/evals-selftest.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Harness self-test (stdlib only — no dependencies)
+        run: python -m unittest discover -s eval-loops/tests -v
+      - name: Smoke-test the harness on the JSON demo tasks
+        run: python eval-loops/scripts/run_evals.py --tasks eval-loops/demo_tasks --k 3 --out ./eval_runs
