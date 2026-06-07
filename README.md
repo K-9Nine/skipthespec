@@ -1,30 +1,46 @@
-# Autonomous Developer — Claude Code skill set
+<div align="center">
 
-A five-skill system that operationalizes how Anthropic builds: **prototype-first decisions,
-usage data as the spec, Claude authoring the majority of code, and automated test/eval
-loops** — bounded by a constitution that keeps humans in structural control.
+# 🚀 Skip the Spec
 
-## The five skills
+### Build software the way Anthropic does — *skip the PRD, ship the prototype, let the data decide.*
 
-| Skill | Principle it implements | Job |
-|---|---|---|
-| **autonomous-dev** | Overall philosophy + governance | Router. Loads the constitution, routes to the right phase, enforces the priority hierarchy. **Load this first.** |
-| **prototype-first** | #1 Skip the Spec | Goal → working, shippable prototype via a reasonable-assumption protocol (no PRD). |
-| **dogfood-loop** | #2 Internal Dogfooding | Ship behind a flag to staff/beta users; turn usage + feedback into the spec; promote/iterate/kill. |
-| **autonomous-build** | #3 AI Autonomy | Claude plans, writes, tests, self-reviews, optimizes — under honesty rules and instant corrigibility. |
-| **eval-loops** | #4 Automated test & eval | Build/run the eval harness; deterministic + LLM graders; pass@k/pass^k; regression graduation. |
+**A set of [Claude Code](https://www.claude.com/product/claude-code) skills that hands the dev lifecycle to the AI under a safety‑bounded constitution: prototype‑first decisions, internal dogfooding as the spec, autonomous build + test, and automated eval loops.**
 
-The **Autonomous Developer Constitution** lives once at
-`autonomous-dev/references/constitution.md` and governs all four phase skills:
-priority hierarchy **Safety > Corrigibility > Velocity > Quality**, the Hard Constraints,
-and the human-vs-AI decision boundaries.
+[![Claude Code](https://img.shields.io/badge/Claude_Code-Skills-D97757?logo=anthropic&logoColor=white)](https://www.claude.com/product/claude-code)
+[![Agent Skills](https://img.shields.io/badge/Agent_Skills-spec_valid-22c55e)](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
+![Skills](https://img.shields.io/badge/skills-5-8b5cf6)
 
-## Quick install (from GitHub)
+⭐ **If this changes how you build with AI, star the repo — it’s the fastest way to help others find it.**
 
-This repo IS the source. Two slash commands handle install and isolation:
+</div>
+
+---
+
+## 💡 What is this?
+
+Anthropic doesn’t write a dense PRD and then build to it. Their Claude Code team **builds a working prototype first, ships it internally the same day, watches real usage, and lets the data choose the roadmap** — while Claude now authors **80%+ of merged production code** behind an automated reviewer.
+
+**Skip the Spec** turns that playbook into five composable Claude Code skills you can drop into any repo. You give the high‑level goal and the boundaries; Claude plans, writes, tests, evaluates, and ships behind a flag — and a built‑in **Autonomous Developer Constitution** keeps you in structural control the whole way.
+
+> No PRDs. Prototypes are the spec. Usage data is the roadmap. Evals are the safety net. You hold the kill switch.
+
+## ✨ Highlights
+
+- 🧭 **One router skill** loads everything and enforces a strict priority order: **Safety → Corrigibility → Velocity → Quality**.
+- ⚡ **Skip the spec, not the thinking** — a reasonable‑assumption protocol replaces requirements docs with shippable prototypes.
+- 🐕 **Dogfood loop** — staged feature‑flag rollout (dev → internal → beta → cohort → default‑on) with a data‑driven *promote / iterate / kill* rule.
+- 🤖 **High AI autonomy, hard honesty rules** — Claude drives execution but can never fake a green test, hide reasoning, or resist a human override.
+- 🧪 **Runnable eval harness** — Anthropic’s evals method in code: tasks from real failures, deterministic + LLM‑judge graders, `pass@k` / `pass^k`, *read the transcripts*.
+- 🔀 **On/off mode switch** — isolate this set so it never collides with your PRD‑led skills.
+- ✅ **Spec‑valid** — all five skills pass the [agentskills.io](https://agentskills.io) validator.
+
+## ⏱️ Install in one command
+
+Run inside any project repo where you want the skill set (installs at **project scope**, so it stays isolated):
 
 ```bash
-# one-time, inside a project repo where you want skip-the-spec available:
 git clone --depth 1 https://github.com/K-9Nine/skipthespec.git /tmp/sts \
   && mkdir -p .claude/skills .claude/commands \
   && cp -r /tmp/sts/{autonomous-dev,prototype-first,dogfood-loop,autonomous-build,eval-loops} .claude/skills/ \
@@ -32,68 +48,98 @@ git clone --depth 1 https://github.com/K-9Nine/skipthespec.git /tmp/sts \
   && cp /tmp/sts/install/skipthespec-mode.sh .claude/ && chmod +x .claude/skipthespec-mode.sh
 ```
 
-After that first copy, the slash commands are available in Claude Code:
+Then in Claude Code:
 
-- **`/skipthespec-install`** — clone/pull this repo and (re)install the five skills + commands into the current project. Use it to install in new repos or update to the latest version.
-- **`/skipthespec-mode on|off|status`** — toggle this set as the **primary / only** skill set. `on` writes an enforcement block into `CLAUDE.md` instructing Claude to use only these five skills and ignore PRD-led skills; `off` removes it. Start a fresh session after toggling so Claude re-reads `CLAUDE.md`.
-
-### Isolating from your PRD-led skills (the on/off switch)
-
-There is no native "use only this set" switch in Claude Code, so isolation is achieved two ways, both included here:
-
-1. **Project scope.** Install into `.claude/skills/` (not `~/.claude/skills/`). PRD-led repos simply don't contain these skills, so they can never trigger there.
-2. **Mode flag.** Even in a shared environment, `/skipthespec-mode on` adds a CLAUDE.md directive telling Claude this set is primary and PRD-led skills are suppressed for the session. `/skipthespec-mode off` restores normal behavior. The toggle is idempotent and preserves the rest of your CLAUDE.md.
-
-## Manual install in Claude Code
-
-Personal (all projects):
-```bash
-mkdir -p ~/.claude/skills
-unzip 'autonomous-*.zip' 'prototype-first.zip' 'dogfood-loop.zip' 'eval-loops.zip' -d ~/.claude/skills/
-# each zip expands to its own <skill-name>/ directory containing SKILL.md
+```text
+/skipthespec-mode on        # make this the primary skill set (suppress PRD-led skills)
+/skipthespec-install        # re-install / update in any repo, anytime
 ```
-Project-scoped (commit with the repo):
-```bash
-mkdir -p .claude/skills && unzip '*.zip' -d .claude/skills/
-```
-Verify Claude sees them: start Claude Code and run `/autonomous-dev` (or just describe a
-build goal — the router should trigger on phrases like "build a prototype", "ship it
-internally", "let Claude drive", "set up evals").
 
-## Run the first cycle
+…and describe a goal — e.g. *“Let users preview Excel/CSV files inline.”* Claude loads `autonomous-dev` and runs the loop. See **[KICKOFF-PROMPT.md](KICKOFF-PROMPT.md)** for a fill‑in‑the‑blanks first run.
 
-See **KICKOFF-PROMPT.md** — paste it into Claude Code with your goal filled in to run one full
-idea → prototype → build → eval → dogfood → decision loop.
+## 🧩 The five skills
 
-## How the skills compose
+| Skill | Principle | What it does |
+|---|---|---|
+| 🧭 **autonomous-dev** | Governance | Router. Loads the **Constitution**, routes to the right phase, enforces the priority hierarchy. **Load first.** |
+| ⚡ **prototype-first** | Skip the Spec | Goal → working, shippable prototype via a reasonable‑assumption protocol. No PRD. |
+| 🐕 **dogfood-loop** | Dogfooding | Ship behind a flag to staff/beta users; turn usage + feedback into the spec; promote / iterate / kill. |
+| 🤖 **autonomous-build** | AI Autonomy | Claude plans, writes, tests, self‑reviews, optimizes — under honesty rules + instant corrigibility. |
+| 🧪 **eval-loops** | Automated Evals | Build/run the eval harness; deterministic + LLM graders; `pass@k`/`pass^k`; regression graduation. |
+
+## 🔁 How it flows
 
 ```
-                       autonomous-dev (router + constitution)
-                                     │ routes to
-        ┌───────────────┬───────────────────────┬──────────────────┐
+                 autonomous-dev  (router + constitution)
+                          │ routes to
    prototype-first → autonomous-build → eval-loops (net) → dogfood-loop → decision
-        ▲                                                                  │
-        └──────────────────── iterate on real usage data ◄────────────────┘
+          ▲                                                                  │
+          └────────────────── iterate on real usage data ◄──────────────────┘
 ```
 
-## Design provenance
+A normal feature touches all four phases: **prototype → build (evals run as the net) → dogfood → promote / iterate / kill.**
 
-Built directly from Anthropic primary sources:
-- Prototype-first product process (Claude Code team / Catherine Wu) — idea → prototype →
-  internal launch → watch → data-driven prioritization.
-- "Equipping agents for the real world with Agent Skills" — progressive disclosure,
-  evaluation-first, think-from-Claude's-perspective.
-- "Demystifying evals for AI agents" — 20-50 tasks from real failures, deterministic +
-  LLM-judge graders, grade outcomes not paths, isolated trials, pass@k vs pass^k, read the
-  transcripts.
-- Anthropic reporting that Claude authors 80%+ of merged code with an automated reviewer
-  gating every change.
+## 📜 The Autonomous Developer Constitution
 
-## Customize
+High AI autonomy only works with hard boundaries. Every skill inherits one constitution ([`autonomous-dev/references/constitution.md`](autonomous-dev/references/constitution.md)):
 
-- Put project-specific boundaries/compliance rules in your repo's `CLAUDE.md` — they extend,
-  never override, the constitution's Hard Constraints.
-- Wire `eval-loops/scripts/run_evals.py` `run_agent()` and `llm_judge()` to your real harness.
-- All five skills validate against the agentskills.io spec.
+| # | Priority | Core metric |
+|---|---|---|
+| 1 | **System Safety** | Total adherence to Hard Constraints; zero infrastructure risk |
+| 2 | **Corrigibility** | Instant compliance with human halt / rollback / pivot |
+| 3 | **Velocity** | Rapid prototyping, immediate shipping, automated loops |
+| 4 | **Code Quality** | Clean, honest, maintainable architecture |
+
+- **Humans own** the vision, the boundaries, and the final “did it work” verdict.
+- **Claude owns** planning, writing, testing, optimizing, and sub‑experiments — *inside* those boundaries.
+- **Bright lines** (never crossed, even on request): malicious artifacts, infrastructure sabotage, covert execution, circumventing org/security/legal controls.
+
+## 🔀 Isolating it from your PRD‑led skills
+
+Claude Code has no native “use only this set” switch, so isolation comes from two layers:
+
+1. **Project scope** — installed in `.claude/skills/`, so PRD‑led repos never see these skills.
+2. **Mode flag** — `/skipthespec-mode on` writes a `CLAUDE.md` directive telling Claude to use *only* these five skills and ignore PRD‑led ones; `/skipthespec-mode off` restores normal behavior. Idempotent, and it preserves the rest of your `CLAUDE.md`.
+
+## 🧪 Try the eval harness now
+
+```bash
+cd eval-loops
+mkdir -p demo_tasks && cp templates/eval-task.yaml demo_tasks/   # one example task
+python3 scripts/run_evals.py --tasks demo_tasks --k 5 --out ./eval_runs
 ```
+
+The harness runs **k isolated, clean‑room trials per task**, applies deterministic + LLM‑judge graders, reports `pass@k` / `pass^k`, and saves transcripts — because you don’t trust a score you haven’t read. Task format: [`eval-loops/templates/eval-task.yaml`](eval-loops/templates/eval-task.yaml).
+
+## 📚 Built from primary sources
+
+- Anthropic — *[prototype‑first product process](https://www.anthropic.com/engineering)* (Claude Code team): idea → prototype → internal launch → watch → data‑driven prioritization.
+- Anthropic — *[Equipping agents for the real world with Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)*: progressive disclosure, evaluation‑first, think from Claude’s perspective.
+- Anthropic — *[Demystifying evals for AI agents](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)*: tasks from real failures, deterministic + LLM‑judge graders, grade outcomes not paths, `pass@k` vs `pass^k`, read the transcripts.
+- Reporting that **Claude authors 80%+ of merged code** at Anthropic with an automated reviewer gating every change.
+
+## 🗺️ Repo layout
+
 ```
+skipthespec/
+├── autonomous-dev/      # router + constitution (load first)
+├── prototype-first/     # skip the spec → shippable prototype
+├── dogfood-loop/        # flagged rollout + data-driven decision
+├── autonomous-build/    # Claude drives plan→write→test→review
+├── eval-loops/          # runnable eval harness + graders
+├── .claude/commands/    # /skipthespec-install, /skipthespec-mode
+├── install/             # mode toggle script
+└── KICKOFF-PROMPT.md     # paste-and-go first cycle
+```
+
+## 🤝 Contributing
+
+Issues and PRs welcome — new skills, better graders, real‑world eval task packs, or workflow refinements. If you ship something with it, open a Discussion and tell us how it went.
+
+## ⭐ Like it?
+
+Star the repo and share it with someone drowning in PRDs. That’s the whole ask.
+
+## 📄 License
+
+[MIT](LICENSE) © K9
