@@ -1,0 +1,6 @@
+# The eval harness (scripts/run_evals.py) and its self-test run on the Python
+# standard library alone — JSON task files need nothing installed.
+#
+# PyYAML is OPTIONAL: install it only if you want to author task files in YAML
+# (.yaml/.yml) instead of JSON.
+pyyaml>=6.0

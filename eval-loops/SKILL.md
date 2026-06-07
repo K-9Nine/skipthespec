@@ -4,7 +4,7 @@ description: "Design, build, run, and maintain automated test and evaluation loo
 license: MIT
 metadata:
   author: nathan
-  version: '1.0'
+  version: '1.1'
 ---
 
 # Eval Loops
@@ -51,12 +51,16 @@ Do not wait for a perfect suite. **20-50 simple tasks drawn from real failures i
 
 - Test where a behavior **should** occur **and** where it **shouldn't**. One-sided evals create one-sided optimization.
 - Avoid class imbalance. Example: include both "queries that should trigger a search" and "queries to answer from existing knowledge."
+- Tag each task `expectation: positive|negative`. The harness reports the positive/negative split and warns on a one-sided suite. Graders always encode the **correct** outcome — for a negative task that means asserting the behavior is **absent** (e.g. `search_triggered == False`).
 
 ## Step 4 — Build a robust, isolated harness
 
 - The eval agent must function roughly the same as production; the environment must not add noise.
 - **Each trial starts from a clean environment.** No leftover files, cached data, or shared state — these cause correlated failures (flakiness) or artificially inflate scores.
-- Use `scripts/run_evals.py` as the harness skeleton (deterministic + LLM-judge graders, clean-room per trial, pass@k / pass^k reporting).
+- A crashing or hung trial must not abort the suite. `scripts/run_evals.py` isolates each trial, applies a per-trial `--timeout`, and records a crash/timeout as a failed trial with the error in the transcript.
+- Use `scripts/run_evals.py` as the harness skeleton (restricted no-`eval` graders, clean-room + timeout per trial, pass@k / pass^k, provenance-stamped `report.json`).
+
+> ⚠ **Clean-room is isolation of _state_, not _privilege_.** A trial runs your agent with this process's full filesystem, network, and environment — it is **not** a security sandbox. Grader `check` strings run through a restricted evaluator (no attribute access, no arbitrary calls) so a task file can't execute code, but the agent itself can. **Before running task packs you did not author, run the whole harness in a container/VM with no credentials in the environment and egress disabled.**
 
 ## Step 5 — Design graders thoughtfully
 
@@ -79,7 +83,8 @@ Choose **deterministic graders where possible, LLM graders where necessary, huma
 
 - **pass@k** — probability of ≥1 success in k attempts. Use where **one success matters** (e.g. a tool that just needs to work once).
 - **pass^k** — probability **all** k trials succeed. Use where **consistency is essential** (agents users rely on every time). Note: 75% per-trial over 3 trials = (0.75)³ ≈ 42% pass^3.
-- Also track for free: latency, token usage, cost/task, error rate on a static task bank.
+- `run_evals.py` reports the **empirical** per-task figure (≥1 / all of the k trials actually run) plus the per-trial rate — not the unbiased sampling estimator. Run enough trials and read the per-trial rate alongside the headline.
+- Also track for free: latency, cost/task, error rate, and judge abstentions — `report.json` carries all of these plus run provenance (commit, model, timestamp).
 
 ## Step 8 — Graduate and maintain
 
@@ -103,6 +108,8 @@ Choose **deterministic graders where possible, LLM graders where necessary, huma
 - Taking eval scores at face value without reading transcripts.
 - "Fixing" a failing eval by weakening the grader — that is faking results (constitution §2).
 - One-sided suites that only test the positive case.
+- Running untrusted / community task packs without a sandbox (clean-room ≠ sandbox — see Step 4).
+- Letting one crashing trial abort the whole run, or trusting a suite score while errored / abstained trials hide inside it.
 
 ## Hand-off
 
@@ -111,5 +118,8 @@ Report: tasks count, pass@k / pass^k, what's in the regression suite, any unfair
 ## References, Scripts & Templates
 
 - `references/grader-design.md` — choosing and calibrating graders; deterministic vs. LLM-as-judge in depth.
-- `scripts/run_evals.py` — runnable harness skeleton: clean-room trials, pluggable graders, pass@k / pass^k.
+- `scripts/run_evals.py` — runnable harness: restricted (no-`eval`) graders, clean-room + timeout per trial, pass@k / pass^k, provenance-stamped report.
+- `tests/test_run_evals.py` — the harness's own self-test (stdlib only): `python -m unittest discover -s eval-loops/tests`.
 - `templates/eval-task.yaml` — the per-task definition (inputs, success criteria, reference solution, graders).
+- `demo_tasks/` — two ready-to-run JSON tasks (one positive, one negative) for a zero-dependency first run.
+- `requirements.txt` — optional PyYAML, only if you want to author task files in YAML (JSON needs nothing).

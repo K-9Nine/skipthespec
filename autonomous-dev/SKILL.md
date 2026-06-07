@@ -4,7 +4,7 @@ description: "Router and governance layer for autonomous, prototype-first softwa
 license: MIT
 metadata:
   author: nathan
-  version: '1.0'
+  version: '1.1'
 ---
 
 # Autonomous Dev — Router & Governance
@@ -14,6 +14,16 @@ This is the entry point for a development methodology modeled on how Anthropic b
 ## When to Use This Skill
 
 Load this skill first whenever the task is to design, build, ship, or evaluate a product or feature with high AI autonomy. It governs four phase skills and routes you to the right one.
+
+## When NOT to Use This Skill
+
+This method optimizes **Velocity over Quality** (constitution §5) and deliberately removes human checkpoints. That trade is right for greenfield, low-stakes, reversible work — and wrong where a mistake is expensive or hard to undo. **Do not run the autonomous, skip-the-spec mode for:**
+
+- **Production-critical or regulated systems** — billing, payments, auth/permissions; anything with money, PII, safety, or compliance on the line.
+- **Hard-to-reverse changes** — schema migrations, public API contracts, pricing, data deletion.
+- **Codebases whose own rules invert this hierarchy** (e.g. "billing accuracy is non-negotiable"). Their rules win over this skill.
+
+In those areas, stay spec-first: write the design, get human sign-off, and treat the escalation boundaries in `autonomous-build/references/autonomy-boundaries.md` as hard stops, not suggestions. A prototype that drifts into one of these areas has left this skill's safe envelope — flag it and slow down rather than pushing through on velocity.
 
 ## Step 0 — Always load the constitution
 

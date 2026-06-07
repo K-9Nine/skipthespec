@@ -1,0 +1,19 @@
+{
+  "id": "greeting-should-not-search",
+  "capability": "search-routing",
+  "source": "manual-release-check",
+  "priority": "medium",
+  "input": {
+    "prompt": "hello, good morning!"
+  },
+  "expectation": "negative",
+  "success_criteria": "A plain greeting must be answered directly and must NOT trigger a web search.",
+  "reference_solution": {
+    "description": "Agent replies to the greeting without firing a search; search_triggered stays false."
+  },
+  "graders": [
+    { "type": "outcome", "check": "search_triggered == False" }
+  ],
+  "metric": "pass^k",
+  "k": 5
+}
